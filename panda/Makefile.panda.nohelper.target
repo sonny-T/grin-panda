@@ -1,0 +1,88 @@
+# necessary for QEMU headers to compile in C++ code.
+QEMU_CXXFLAGS += -Wno-pointer-arith
+
+ifdef CONFIG_LLVM
+#########################################################
+# LLVM library
+
+obj-y += panda/llvm/tcg-llvm.o
+#obj-y += panda/llvm/helper_runtime.o
+panda/llvm/tcg-llvm.o-cflags := $(LLVM_CXXFLAGS) -Wno-cast-qual
+#panda/llvm/helper_runtime.o-cflags := $(LLVM_CXXFLAGS) -Wno-cast-qual
+
+# regular bitcode
+llvm-y =
+
+# morphed bitcode - morph call instructions and function names after bitcode is
+# linked together to make helper bitcode available for use by PANDA plugins
+llvmmorph-y =
+
+#X86_HELPERS = helper.bc2 bpt_helper.bc2 excp_helper.bc2 fpu_helper.bc2
+#X86_HELPERS += excp_helper.bc2 fpu_helper.bc2 cc_helper.bc2 int_helper.bc2
+#X86_HELPERS += svm_helper.bc2 smm_helper.bc2 misc_helper.bc2 mem_helper.bc2 seg_helper.bc2
+#X86_HELPERS += mpx_helper.bc2
+
+#llvm-$(TARGET_I386) += fpu/softfloat.bc2
+#llvm-$(TARGET_I386) += $(addprefix target/i386/,$(X86_HELPERS))
+#llvmmorph-$(TARGET_I386) += llvm-helpers.bc
+
+#llvm-$(TARGET_X86_64) += fpu/softfloat.bc2
+#llvm-$(TARGET_X86_64) += $(addprefix target/i386/,$(X86_HELPERS))
+#llvmmorph-$(TARGET_X86_64) += llvm-helpers.bc
+
+#ARM_HELPERS = op_helper.bc2 helper.bc2 neon_helper.bc2 iwmmxt_helper.bc2
+#ARM_HELPERS += crypto_helper.bc2
+
+#llvm-$(TARGET_ARM) += fpu/softfloat.bc2
+#llvm-$(TARGET_ARM) += $(addprefix target/arm/,$(ARM_HELPERS))
+#llvmmorph-$(TARGET_ARM) += llvm-helpers.bc
+
+#PPC_HELPERS = excp_helper.bc2 fpu_helper.bc2 timebase_helper.bc2 misc_helper.bc2 mmu_helper.bc2 mem_helper.bc2 int_helper.bc2
+
+#llvm-$(TARGET_PPC) += fpu/softfloat.bc2
+#llvm-$(TARGET_PPC) += $(addprefix target/ppc/,$(PPC_HELPERS))
+#llvmmorph-$(TARGET_PPC) += llvm-helpers.bc
+
+#CLANG_FILTER = -Wold-style-declaration -fstack-protector-strong -Wno-error=cpp -g -O0 -O1 -O3 -mcx16 -Wno-shift-negative-value
+#QEMU_BC2FLAGS:=$(filter-out $(CLANG_FILTER),$(QEMU_CFLAGS) $(CFLAGS)) -O2 -I../target/$(TARGET_BASE_ARCH)
+#%.bc2: %.c $(GENERATED_HEADERS)
+#	$(call quiet-command,\
+#		$(LLVMCC) $(QEMU_INCLUDES) $(QEMU_BC2FLAGS) $(QEMU_DGFLAGS) -c -emit-llvm -o $@ $<,\
+#		"CLANG   $(TARGET_DIR)$@")
+
+#llvm-helpers.bc1: $(llvm-y)
+#	$(call quiet-command,$(LLVM_LINK) -o $@ $^,"LLVMLD  $(TARGET_DIR)$@")
+
+# Make explicit the fact that we need the tool present to do the morphing
+#panda/tools/helper_call_modifier.o-cflags += $(LLVM_CXXFLAGS) -Wno-misleading-indentation
+#panda/tools/dynslice2.o-cflags += $(LLVM_CXXFLAGS) -Wno-misleading-indentation -Wno-unused-variable -Wno-unused-but-set-variable -Wno-cast-qual
+#panda/tools/slice_analyzer.o-cflags += $(LLVM_CXXFLAGS) -Wno-misleading-indentation -Wno-unused-variable -Wno-unused-but-set-variable
+
+#panda/tools:
+#	$(call quiet-command,mkdir -p panda/tools,)
+
+#../panda/tools:
+#	$(call quiet-command,mkdir -p ../panda/tools,)
+
+#panda/tools/helper_call_modifier.o: | panda/tools ../panda/tools
+#panda/tools/helper_call_modifier: panda/tools/helper_call_modifier.o
+
+#panda/tools/dynslice2.o: | panda/tools ../panda/tools
+#panda/tools/dynslice2: panda/tools/dynslice2.o plog.pb.o panda/src/plog-cc.o
+
+#panda/tools/slice_analyzer.o: | panda/tools ../panda/tools
+#panda/tools/slice_analyzer: panda/tools/slice_analyzer.o
+
+#llvm-helpers.bc: llvm-helpers.bc1 panda/tools/helper_call_modifier
+#	$(call quiet-command,\
+#		panda/tools/helper_call_modifier -i $< -o $@,\
+#		"LLMORPH $(TARGET_DIR)$@")
+
+all: $(llvmmorph-y)
+
+clean: clean-llvm
+
+clean-llvm:
+	rm -f $(llvm-y) $(llvmmorph-y)
+
+endif # CONFIG_LLVM
