@@ -1426,7 +1426,9 @@ int TCGLLVMContextPrivate::generateOperation(int opc, const TCGOp *op,
     return nb_args;
 }
 
-/* Welcome to GRIN rewrite tool */
+/* Welcome to GRIN rewrite tool *
+ * Hello binary */
+
 void TCGLLVMContextPrivate::generateCode(TCGContext *s, TranslationBlock *tb)
 {
     /* Create new function for current translation block */
