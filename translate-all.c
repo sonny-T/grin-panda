@@ -1365,7 +1365,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
     gen_code_size = tcg_gen_code(&tcg_ctx, tb);
 
 #if defined(CONFIG_LLVM)
-    if (generate_llvm)
+    if (generate_llvm && (tb->pc<0x4fffff))
     {
     	//printf("hello llvmvlvmvlmvlmvlvmlvm\n");
         tcg_llvm_gen_code(tcg_llvm_ctx, &tcg_ctx, tb);

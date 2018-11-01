@@ -192,7 +192,7 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
         ret = tcg_llvm_qemu_tb_exec(env, itb);
     } else {
         assert(tb_ptr);
-     //   ret = tcg_qemu_tb_exec(env, tb_ptr);
+        ret = tcg_qemu_tb_exec(env, tb_ptr);
     }
 #else
     //ret = tcg_qemu_tb_exec(env, tb_ptr);
