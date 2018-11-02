@@ -2229,6 +2229,22 @@ static int symfind(const void *s0, const void *s1)
     return result;
 }
 
+static int symcharfind(const void *s0, const void *s1)
+{
+    char* addr = (char *)s0;
+    char* addrend = "\0";
+    struct elf_sym *sym = (struct elf_sym *)s1;
+    int result = 0;
+    char* addr1 = (char *)(addrend+sym->st_name);
+    printf("addr1 %s\n",addr1);
+    if (!strcmp(addr,addr1)) {
+        result = -1;
+    } else if (strcmp(addr,addr1)) {
+        result = 1;
+    }
+    return result;
+}
+
 static const char *lookup_symbolxx(struct syminfo *s, target_ulong orig_addr)
 {
 #if ELF_CLASS == ELFCLASS32
@@ -2240,8 +2256,13 @@ static const char *lookup_symbolxx(struct syminfo *s, target_ulong orig_addr)
     // binary search
     struct elf_sym *sym;
 
-    sym = bsearch(&orig_addr, syms, s->disas_num_syms, sizeof(*syms), symfind);
+    char * aaa = "_start";
+
+    //sym = bsearch(&orig_addr, syms, s->disas_num_syms, sizeof(*syms), symfind);
+    sym = bsearch(aaa, syms, s->disas_num_syms, sizeof(*syms), symcharfind);
     if (sym != NULL) {
+    	printf("%d\n",sym->st_size);
+    	printf("%s\n",s->disas_strtab + sym->st_name);
         return s->disas_strtab + sym->st_name;
     }
 
